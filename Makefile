@@ -5,22 +5,43 @@ osname := $(shell uname -s)
 ifeq ($(osname), Darwin)
 CROSS_PREFIX=aarch64-linux-android-
 else
-CROSS_PREFIX=aarch64-none-elf-
+CROSS_PREFIX=aarch64-linux-gnu-
 endif
 
-all: test64.elf
+OUTPUT := build
+IMAGE  := $(OUTPUT)/kernel.elf
 
-test64.o: test64.c
+CC = ${CROSS_PREFIX}gcc
+AS = ${CROSS_PREFIX}as
+LD = ${CROSS_PREFIX}ld
+OBJDUMP = ${CROSS_PREFIX}objdump
+CFLAGS =  -mcpu=cortex-a72 -Wall -Wextra -g
+
+CFILES = $(wildcard *.c)
+SFILES = $(wildcard *.S)
+OBJS = $(addprefix $(OUTPUT)/, $(CFILES:.c=.o) $(SFILES:.S=.o))
+
+all: $(IMAGE) kernel.bin
+
+$(OUTPUT)/%.o: %.c | $(OUTPUT)
 	$(CROSS_PREFIX)gcc -c $< -o $@
 
-startup64.o: startup64.s
-	$(CROSS_PREFIX)as -c $< -o $@
+$(OUTPUT)/%.o: %.S | $(OUTPUT)
+	# $(CROSS_PREFIX)as -c $< -o $@
+	$(CC) ${CFLAGS} -c $< -o $@			# for include header file in assembly
 
-test64.elf: test64.o startup64.o
-	$(CROSS_PREFIX)ld -Ttest64.ld $^ -o $@
+$(IMAGE): $(OFILES) ${OBJS} | $(OUTPUT)
+	$(CROSS_PREFIX)ld -nostdlib -Tlinker.ld $^ -o $@
+	${OBJDUMP} -D $(OUTPUT)/kernel.elf > $(OUTPUT)/kernel.list
 
-test64.bin: test64.elf
+kernel.bin: $(IMAGE)
 	$(CROSS_PREFIX)objcopy -O binary $< $@
 
+run:
+	$(MAKE)
+	sudo qemu-system-aarch64 -M virt -cpu cortex-a72 -nographic -kernel build/kernel.elf
+
 clean:
-	rm -f test65.bin test64.elf startup64.o test64.o
+	rm -f build/*
+build:
+	mkdir -p build
