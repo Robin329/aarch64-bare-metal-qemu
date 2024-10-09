@@ -7,10 +7,10 @@
 /*                                                                    */
 /**********************************************************************/
 #if !defined(_BOARD_H)
-#define  _BOARD_H 
+#define  _BOARD_H
 
 /*
- * GIC on QEMU Virt 
+ * GIC on QEMU Virt
  */
 #define QEMU_VIRT_GIC_BASE			(0x08000000)
 #define QEMU_VIRT_GIC_INT_MAX		(64)

@@ -4,14 +4,17 @@
 #include "gic_v3.h"
 #include "timer.h"
 #include "uart.h"
-#include <stdint.h>
+#include "printk.h"
+#include <stdio.h>
 
-void main() {
-  uart_puts("Hello world!\n");
-  uart_puts("Hello aarch64 baremetal QEMU!\n");
-  uart_puts("timer test start .... \n");
-  uart_puts("Please input id>");
-  uart_putc(uart_getc());
-  uart_puts("\n");
-  timer_test();
+void main()
+{
+	uart_puts("\n\n");
+	uart_puts("************************************\n");
+	uart_puts("*  Hello aarch64 baremetal QEMU!   *\n");
+	uart_puts("************************************\n\n");
+	uart_puts("timer test start .... \n\n");
+	// GIC Init
+	gic_v3_initialize();
+	timer_test();
 }

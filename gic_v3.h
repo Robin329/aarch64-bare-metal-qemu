@@ -16,7 +16,7 @@
 /*                                                                    */
 /**********************************************************************/
 #if !defined(_GIC_V3_H)
-#define _GIC_V3_H 
+#define _GIC_V3_H
 
 #if !defined(_BOARD_H)
 #error "Include board.h before this header file."
@@ -33,10 +33,10 @@ typedef int32_t irq_no;			/* IRQ no */
 #define GIC_GICD_IPRIORITY_PER_REG		(4)		/* 4 priority per reg */
 #define GIC_GICD_IPRIORITY_SIZE_PER_REG	(8) 	/* priority element size */
 #define GIC_GICD_ITARGETSR_CORE0_TARGET_BMAP (0x01010101) /* CPU interface 0 */
-#define GIC_GICD_ITARGETSR_PER_REG		(4) 
-#define GIC_GICD_ITARGETSR_SIZE_PER_REG	(8) 
-#define GIC_GICD_ICFGR_PER_REG			(16) 
-#define GIC_GICD_ICFGR_SIZE_PER_REG		(2) 
+#define GIC_GICD_ITARGETSR_PER_REG		(4)
+#define GIC_GICD_ITARGETSR_SIZE_PER_REG	(8)
+#define GIC_GICD_ICFGR_PER_REG			(16)
+#define GIC_GICD_ICFGR_SIZE_PER_REG		(2)
 #define GIC_GICD_ICENABLER_PER_REG		(32)
 #define GIC_GICD_ISENABLER_PER_REG		(32)
 #define GIC_GICD_ICPENDR_PER_REG		(32)
@@ -62,7 +62,7 @@ typedef int32_t irq_no;			/* IRQ no */
 #define GICC_PMR_PRIO_HIGH			(0x0)	/* The highest level mask */
 
 /* 8.13.6 GICC_BPR, CPU Interface Binary Point Register */
-/* In systems that support only one Security state, when GICC_CTLR.CBPR == 0, 
+/* In systems that support only one Security state, when GICC_CTLR.CBPR == 0,
 this register determines only Group 0 interrupt preemption. */
 #define GICC_BPR_NO_GROUP			(0x0)	/* handle all interrupts */
 
@@ -126,6 +126,8 @@ this register determines only Group 0 interrupt preemption. */
 #define REG_GIC_GICD_SGIR             ((volatile uint32_t *)(uintptr_t)GIC_GICD_SGIR)
 #define REG_GIC_GICD_CPENDSGIR(n)     ((volatile uint32_t *)(uintptr_t)GIC_GICD_CPENDSGIR(n))
 #define REG_GIC_GICD_SPENDSGIR(n)     ((volatile uint32_t *)(uintptr_t)GIC_GICD_SPENDSGIR(n))
+
+#define GICD_TYPER_IRQS(typer) ((((typer) & 0x1f) + 1) * 32)
 
 void gic_v3_initialize(void);
 void gic_v3_eoi(irq_no irq);

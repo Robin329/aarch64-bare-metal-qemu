@@ -3,7 +3,6 @@
 volatile unsigned int *const UART0DR = (unsigned int *)0x09000000;
 volatile unsigned int *const UART0FR = (unsigned int *)0x09000018;
 
-
 /* -------------------------------------------------------------------------------
  *  From AMBA UART (PL010) Block Specification
  * -------------------------------------------------------------------------------
@@ -44,6 +43,8 @@ volatile unsigned int *const UART0FR = (unsigned int *)0x09000018;
 #define ST_UART011_ABCR		0x100	/* Autobaud control register. */
 #define ST_UART011_ABIMSC   0x15C /* Autobaud interrupt mask/clear register. */
 
+#define LCRH_FEN (1 << 4)
+#define LCRH_WLEN_8BIT (3 << 5)
 
 #define UART011_FR_RI         0x100
 #define UART011_FR_TXFE       0x080
@@ -56,7 +57,10 @@ volatile unsigned int *const UART0FR = (unsigned int *)0x09000018;
 #define UART01x_FR_CTS        0x001
 #define UART01x_FR_TMSK       (UART01x_FR_TXFF + UART01x_FR_BUSY)
 
-static inline void cpu_relax(void) { asm volatile("yield" ::: "memory"); }
+static inline void cpu_relax(void)
+{
+	asm volatile("yield" ::: "memory");
+}
 
 void uart_putc(const char c)
 {
@@ -70,10 +74,11 @@ void uart_putc(const char c)
 	}
 }
 
-char uart_getc(void) {
-  while ((*UART0FR) & UART01x_FR_RXFE)
-    ;
-		return *(UART0DR);
+char uart_getc(void)
+{
+	while ((*UART0FR) & UART01x_FR_RXFE)
+		;
+	return *(UART0DR);
 }
 
 void uart_puthex(uint64_t n)
@@ -86,7 +91,37 @@ void uart_puthex(uint64_t n)
 		uart_putc(hexdigits[(n >> i) & 0xf]);
 		if (i == 32)
 			uart_putc(' ');
+        }
+	uart_putc('\n');
+}
+void uart_putdec(uint64_t number)
+{
+	// 处理负数（可选）
+	if (number < 0) {
+		uart_putc('-');
+		number = -number;
 	}
+
+	// 将数字转换为字符并发送
+	if (number == 0) {
+		uart_putc('0');
+		return;
+	}
+
+	char buffer[10];
+	int i = 0;
+
+	// 将数字转换为字符
+	while (number > 0) {
+		buffer[i++] = (number % 10) + '0'; // 取余并转换为字符
+		number /= 10;
+	}
+
+	// 反转字符数组并发送
+	while (--i >= 0) {
+		uart_putc(buffer[i]);
+	}
+	uart_putc('\n');
 }
 
 void uart_puts(const char *s)
@@ -94,5 +129,21 @@ void uart_puts(const char *s)
 	while (*s != '\0') { /* Loop until end of string */
 		*UART0DR = (unsigned int)(*s); /* Transmit char */
 		s++; /* Next char */
+        }
+
+}
+
+void puts(const char *str)
+{
+	while (*str) {
+		uart_putc(*str++);
 	}
+}
+
+void putchar(char c) { uart_putc(c); }
+
+void log(const char *s1, const char *s2, const char *s3) {
+  uart_puts(s1);
+  uart_puts(s2);
+  uart_puts(s3);
 }

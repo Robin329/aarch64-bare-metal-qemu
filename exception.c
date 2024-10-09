@@ -104,4 +104,3 @@ void common_trap_handler(exception_frame *exc)
 	}
 	return;
 }
-

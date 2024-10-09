@@ -59,8 +59,6 @@ void timer_test(void)
 	uint64_t ticks, current_cnt;
 
     uart_puts("timer_test\n");
-	// GIC Init
-	gic_v3_initialize();
 
     uart_puts("CurrentEL = ");
 	val = raw_read_current_el();
@@ -105,7 +103,7 @@ void timer_test(void)
 	val = raw_read_cntv_ctl();
 	uart_puthex(val);
 
-	// Enable IRQ 
+	// Enable IRQ
 	enable_irq();
     uart_puts("\nEnable IRQ, DAIF = ");
 	val = raw_read_daif();
